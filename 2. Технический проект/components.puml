@@ -1,0 +1,62 @@
+@startuml Component
+title "C4. Компоненты"
+
+!include <C4/C4_Component>
+
+Component(apiGateway, "API Gateway", "Nginx", "Маршрутизация запросов к микросервисам")
+
+System_Boundary(productService, "Микросервис статистики") {
+    Component(playerController, "Контроллер игроков", "Go", "Обрабатывает HTTP-запросы, поступающие через API Gateway")
+    Component(teamController, "Контроллер команд", "Go", "Обрабатывает HTTP-запросы, поступающие через API Gateway")
+    Component(matchController, "Контроллер матчей", "Go", "Обрабатывает HTTP-запросы, поступающие через API Gateway")
+    Component(playerInterfaceService, "Абстрактный сервис игроков", "Go", "Определяет интерфейс с доступными операциями над игроками")
+    Component(teamInterfaceService, "Абстрактный сервис команд", "Go", "Определяет интерфейс с доступными операциями над командами")
+    Component(matchInterfaceService, "Абстрактный сервис матчей", "Go", "Определяет интерфейс с доступными операциями над матчами")
+    Component(playerService, "Сервис игроков", "Go", "Реализует бизнес-логику работы с игроками")
+    Component(teamService, "Сервис команд", "Go", "Реализует бизнес-логику работы с командами")
+    Component(matchService, "Сервис матчей", "Go", "Реализует бизнес-логику работы с матчами")
+    Component(playerInterfaceRepository, "Абстрактный репозиторий игроков", "Go", "Определяет интерфейс для работы с данными игроков")
+    Component(teamInterfaceRepository, "Абстрактный репозиторий команд", "Go", "Определяет интерфейс для работы с данными команд")
+    Component(matchInterfaceRepository, "Абстрактный репозиторий матчей", "Go", "Определяет интерфейс для работы с данными матчей")
+    Component(playerRepository, "Репозиторий игроков", "Go", "Работает с БД игроков")
+    Component(teamRepository, "Репозиторий команд", "Go", "Работает с БД команд")
+    Component(matchRepository, "Репозиторий матчей", "Go", "Работает с БД матчей")
+    Component(interfaceCacheClient, "Абстрактный клиент кэша", "", "Описывает операции с кэшем")
+    Component(cacheClient, "Клиент кэша", "Redis Client", "Читает и записывает данные в кэш")
+}
+
+System_Ext(redis, "Кэш", "[Redis]\nКэширование данных о игроках, командах, матчах")
+System_Ext(db, "База данных статистик", "[PostgreSQL]")
+
+Rel(apiGateway, playerController, "Передаёт запросы на выполнение операций")
+Rel(apiGateway, teamController, "Передаёт запросы на выполнение операций")
+Rel(apiGateway, matchController, "Передаёт запросы на выполнение операций")
+
+playerInterfaceService <--- playerService
+teamInterfaceService <--- teamService
+matchInterfaceService <---matchService
+
+playerInterfaceRepository <--- playerRepository
+teamInterfaceRepository <--- teamRepository
+matchInterfaceRepository <--- matchRepository
+
+interfaceCacheClient <--- cacheClient
+
+Rel(playerController, playerInterfaceService, "Передаёт запросы на выполнение операций")
+Rel(teamController, teamInterfaceService, "Передаёт запросы на выполнение операций")
+Rel(matchController, matchInterfaceService, "Передаёт запросы на выполнение операций")
+
+Rel(playerService, playerInterfaceRepository, "Работает с данными игроков")
+Rel(playerService, interfaceCacheClient, "Читает или записывает данные в кэш")
+Rel(teamService, teamInterfaceRepository, "Работает с данными команд")
+Rel(teamService, interfaceCacheClient, "Читает или записывает данные в кэш")
+Rel(matchService, matchInterfaceRepository, "Работает с данными матчей")
+Rel(matchService, interfaceCacheClient, "Читает или записывает данные в кэш")
+
+Rel(playerRepository, db, "Получает или обновляет данные")
+Rel(teamRepository, db, "Получает или обновляет данные")
+Rel(matchRepository, db, "Получает или обновляет данные")
+
+Rel(cacheClient, redis, "Читает или записывает данные")
+
+@enduml

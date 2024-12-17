@@ -1,0 +1,93 @@
+@startuml Container
+title "C4. Контейнеры"
+
+!$ICONURL = "https://raw.githubusercontent.com/tupadr3/plantuml-icon-font-sprites/v3.0.0/icons"
+!include $ICONURL/devicons/react.puml
+!include $ICONURL/devicons/postgresql.puml
+!include $ICONURL/devicons/nginx.puml
+!include $ICONURL/devicons/go.puml
+!include $ICONURL/devicons/dropbox.puml
+!include $ICONURL/devicons/redis.puml
+!include <C4/C4_Container>
+
+Person(analyst, "Спортивный аналитик", "Сравнивает статистику команд и игроков, анализирует результаты для разработки стратегий и тактик")
+Person(coach, "Тренер", "Просматривает статистику своих игроков и команды, анализирует эффективность игроков на различных позициях, создает отчет о команде или игроке")
+Person(player, "Игрок", "Отслеживает свои достижения, сравнивает статистику с другими игроками и анализирует прогресс")
+Person(baseUser, "Пользователь", "Изучает статистику любимых игроков и команды, создает инфографику с лучшими моментами")
+Person(journalist, "Журналист", "Пишет обзоры матчей, использует статистику для прогнозов и анализа ключевых моментов")
+Person(tournamentOrganizer, "Организатор турниров", "Следит за ходом турниров, создает онлайн-табло и предоставляет актуальную статистику для участн")
+
+System_Boundary(sportsStatsSystem, "Система спортивной статистики") {
+    Container(webApp, "Веб-приложение", "React", "Веб приложение для покупателей, продавцов и администраторов", $sprite="react")
+    Container(mobileApp, "Мобильное приложение", "React Native", "Мобильное приложение для iOS и Android", $sprite="react")
+
+    Container(apiGateway, "API Gateway", "Nginx", "Маршрутизация запросов к микросервисам", $sprite="nginx")
+
+    Container(userService, "Сервис пользователей", "Go", "Управление регистрацией, аутентификацией и авторизацией пользователей", $sprite="go")
+    Container(statService, "Сервис спортивной статистики", "Go", "Управление статистикой игроков, команд и матчей", $sprite="go")
+    Container(analyticsService, "Сервис аналитики", "Go", "Сравнение статистик и генерация отчетов", $sprite="go")
+    Container(forecastService, "Сервис прогнозирования", "Go", "Управление прогнозами на матч", $sprite="go")
+    Container(mediaContentService, "Сервис для работы с медиаконтентом", "Go", "Загрузка и сохранение медиаконтента", $sprite="go")
+    Container(reviewService, "Сервис обзоров", "Go", "Управление обзорами матчей", $sprite="go")
+    Container(notificationService, "Сервис уведомлений", "Go", "Обработка событий и формирование контента уведомлений", $sprite="go")
+    Container(backupService, "Сервис резервного копирования", "Go", "Резервное копирование данных", $sprite="go")
+
+    Container(mediaContentStorage, "Хранилище медиаконтента", "Dropbox", "Хранение изобравжений и видео", $sprite="dropbox")
+    ContainerDb(userDB, "База данных пользователей", "PostgreSQL", "Хранение данных пользователя", $sprite="postgresql")
+    ContainerDb(statDB, "База данных статистик", "PostgreSQL", "Хранение данных игроков, команд, матчей", $sprite="postgresql")
+    ContainerDb(forecastDB, "База данных прогнозов", "PostgreSQL", "Хранение данных прогнозов", $sprite="postgresql")
+    ContainerDb(reviewDB, "База данных обзоров", "PostgreSQL", "Хранение данных обзоров", $sprite="postgresql")
+
+    Container(redisCacheStat, "Кэш информации об игроках, командах, матчах", "Redis", "Кэширование запросов для ускорения доступа к данным о игроках, командах матчах", $sprite="redis")
+    Container(redisCacheForecast, "Кэш информации о прогнозах", "Redis", "Кэширование запросов для ускорения доступа к данным о прогнозах", $sprite="redis")
+    Container(redisCacheReview, "Кэш информации об обзорах", "Redis", "Кэширование запросов для ускорения доступа к данным об обзорах", $sprite="redis")
+}
+
+System_Ext(notificationSystem, "Система уведомлений", "Информирование пользователей о начале матча, результатах матчей и событиях")
+System_Ext(backupSystem, "Система резервного копирования", "Создание и восстановление резервных копий данных")
+
+Rel(tournamentOrganizer, webApp, "Управление онлайн-таблом матча и обновление статистики")
+Rel(analyst, webApp, "Анализирует статистику команд и игроков")
+Rel(analyst, mobileApp, "Анализирует статистику команд и игроков")
+Rel(coach, webApp, "Просматривает статистику игроков и команд, составляет отчеты")
+Rel(coach, mobileApp, "Просматривает статистику игроков и команд, составляет отчеты")
+Rel(player, webApp, "Отслеживает собственные достижения и результаты матчей")
+Rel(player, mobileApp, "Отслеживает собственные достижения и результаты матчей")
+Rel(baseUser, webApp, "Изучает статистику любимых команд и игроков")
+Rel(baseUser, mobileApp, "Изучает статистику любимых команд и игроков")
+Rel(journalist, webApp, "Пишет обзоры и создает прогнозы, используя статистику и результаты матчей")
+Rel(journalist, mobileApp, "Пишет обзоры и создает прогнозы, используя статистику и результаты матчей")
+
+Rel(webApp, apiGateway, "Запросы на выполнение операций", "HTTPS")
+Rel(mobileApp, apiGateway, "Запросы на выполнение операций", "HTTPS")
+
+Rel(apiGateway, userService, "Регистрация, авторизация или аутентификация", "HTTP/REST")
+Rel(apiGateway, statService, "Данные о матчах, игроках, командах", "HTTP/REST")
+Rel(apiGateway, analyticsService, "Сравнение статистик, генерация отчетов", "HTTP/REST")
+Rel(apiGateway, forecastService, "Управление прогнозами", "HTTP/REST")
+Rel(apiGateway, mediaContentService, "Управление медиаконтентом", "HTTP/REST")
+Rel(apiGateway, reviewService, "Создание/редактирование/удаление обзоров и видео обзоров", "HTTP/REST")
+
+Rel(statService, notificationService, "Объявление о событии", "HTTP/REST")
+
+Rel(notificationService, notificationSystem, "Отправка уведомлений", "HTTPS/REST")
+
+Rel(userService, backupService, "Обновить резервные данные", "HTTP/REST")
+Rel(statService, backupService, "Обновить резервные данные", "HTTP/REST")
+Rel(forecastService, backupService, "Обновить резервные данные", "HTTP/REST")
+Rel(mediaContentService, backupService, "Обновить резервные данные", "HTTP/REST")
+Rel(reviewService, backupService, "Обновить резервные данные", "HTTP/REST")
+
+Rel(backupService, backupSystem, "Обновление резервных данных", "HTTP/REST")
+
+Rel(mediaContentService, mediaContentStorage, "Хранение медиаконтента")
+Rel(userService, userDB, "Хранение данных о пользователях", "SQL")
+Rel(statService, statDB, "Хранение данных об игроках, командах, матчах", "SQL")
+Rel(forecastService, forecastDB, "Хранение данных о пользователях", "SQL")
+Rel(reviewService, reviewDB, "Хранение данных о пользователях", "SQL")
+
+Rel(statService, redisCacheStat, "Кэширование запросов к статистике", "Redis Protocol")
+Rel(forecastService, redisCacheForecast, "Кэширование запросов к прогнозам", "Redis Protocol")
+Rel(reviewService, redisCacheReview, "Кэширование запросов к обзорам", "Redis Protocol")
+
+@enduml
