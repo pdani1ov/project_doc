@@ -13,7 +13,7 @@ Person(tournamentOrganizer, "Организатор турниров", "След
 System(sportsStatsSystem, "Система спортивной статистики", "Платформа для сбора, хранения и анализа статистики матчей, команд и игроков")
 
 System_Ext(notificationSystem, "Система уведомлений", "Информирование пользователей о начале матча, результатах матчей и событиях")
-System_Ext(backupSystem, "Система резервного копирования", "Создание и восстановление резервных копий данных")
+System_Ext(videoSystem, "Система управления видеофрагментами", "Хранение, организация и обработка видеофайлов.")
 
 analyst ---> sportsStatsSystem : Анализирует статистику команд и игроков
 coach ---> sportsStatsSystem : Просматривает статистику игроков и команд, составляет отчеты
@@ -23,6 +23,6 @@ journalist ---> sportsStatsSystem : Пишет обзоры и создает п
 tournamentOrganizer ---> sportsStatsSystem : Управляет турниром и предоставляет статистику участникам
 
 sportsStatsSystem ---> notificationSystem : Отправка уведомлений пользователям
-sportsStatsSystem ---> backupSystem : Создание резервных копий данных
+sportsStatsSystem ---> videoSystem : Хранение и предоставление доступа к видеофрагментам матчей
 
 @enduml
