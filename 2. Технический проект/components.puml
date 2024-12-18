@@ -63,12 +63,15 @@ playerService ---> interfaceCacheClient : Читает или записывае
 teamService ---> interfaceCacheClient : Читает или записывает данные в кэш
 matchService ---> interfaceCacheClient : Читает или записывает данные в кэш
 
-matchService ---> eventInterfaceClient
-eventInterfaceClient <--- eventClient
-
 Rel(playerRepository, db, "Получает или обновляет данные")
 Rel(teamRepository, db, "Получает или обновляет данные")
 Rel(matchRepository, db, "Получает или обновляет данные")
+
+playerService ---> eventInterfaceClient
+teamService ---> eventInterfaceClient
+matchService ---> eventInterfaceClient
+
+eventInterfaceClient <--- eventClient
 
 Rel(cacheClient, redis, "Читает или записывает данные")
 Rel(eventClient, eventBus, "Публикует события")
