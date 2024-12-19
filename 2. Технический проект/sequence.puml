@@ -1,0 +1,43 @@
+@startuml Sequence
+
+participant "Пользователь" as User
+participant "Журналист" as Journalist
+participant "Организатор" as Organizer
+participant "Система" as System
+
+User -> System: Регистрация (email, имя, пароль)
+System -> System: Проверка данных
+alt Данные корректны
+    System -> User: Подтверждение регистрации
+    User -> System: Авторизация (email, пароль)
+    System -> System: Проверка логина/пароля
+    alt Авторизация успешна
+        System -> User: Доступ к системе
+        User -> System: Просмотр доступных команд
+        System -> User: Отображение списка команд
+        User -> System: Выбор команды
+        System -> User: Отображение статистики команды
+
+        Journalist -> System: Запрос на создание прогноза (команда 1, команда 2)
+        System -> Journalist: Ввод данных прогноза
+        Journalist -> System: Подтверждение прогноза
+        System -> System: Сохранение прогноза
+
+        Organizer -> System: Начало матча с запускам таймера в онлайн-табло
+        System -> User: Уведомляет пользователя о начале матч
+
+        loop Обновление статистики матча в реальном времени
+            Organizer -> System: Обновление данных (результативные действия, фолы)
+            System -> User: Обновление онлайн-табло с новыми данными
+        end
+
+        Organizer -> System: Завершает матч
+        System -> User: Уведомление о завершении матча и финальном счете
+    else
+        System -> User: Ошибка авторизации
+    end
+else
+    System -> User: Ошибка регистрации
+end
+
+@enduml
