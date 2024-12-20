@@ -1,0 +1,67 @@
+@startuml Maintanence
+!theme vibrant
+
+package "Яндекс.Облако Kubernetes" as k8s {
+  [Docker] as docker << (C, #FFAAAA) >>
+  [Containers] as containers << (C, #FFAAAA) >>
+}
+
+package "Система спортивной статистики - обслуживание" as maintenance {
+    actor "Администратор" as admin
+    actor "Техническая поддержка" as tech_support
+    package "Яндекс.Облако" as cloud {
+      [Система мониторинга Prometheus] as monitoring_service << (C, #FFAAAA) >>
+      [Система бэкапов] as backup_service << (C, #FFAAAA) >>
+    }
+}
+
+package "Внешние сервисы" as outer_services {
+    package "Канал уведомлений" as notifications {
+        [Почтовый шлюз] as email_service << (C, #FFAAAA) >>
+        [Push Notification Service] as push_service << (C, #FFAAAA) >>
+    }
+}
+
+package "Разработка" as development {
+    actor "Разработчик" as developer
+    [Система контроля версий (Git GitLab)] as vcs << (C, #FFAAAA) >>
+    [CI/CD Gitlab (Ветка main)] as cicd << (C, #FFAAAA) >>
+    [CI/CD Gitlab (Ветка dev)] as cicdtest << (C, #FFAAAA) >>
+    package "CI/CD Pipeline (PROD)" as build {
+      [Build Stage] as buildstage << (C, #FFAAAA) >>
+      [Testing Stage] as testingstage << (C, #FFAAAA) >>
+    }
+    package "CI/CD Pipeline (TEST)" as buildtest {
+      [Build Stage Test] as buildstagetest << (C, #FFAAAA) >>
+      [Testing Stage Test] as testingstagetest << (C, #FFAAAA) >>
+    }
+    [Реестр контейнеров Gitlab] as containeregistry << (C, #FFAAAA) >>
+}
+
+admin --> monitoring_service : "Мониторинг состояния системы"
+admin --> backup_service : "Контроль и восстановление образов"
+monitoring_service --> email_service : "Отправка уведомлений о событиях"
+monitoring_service --> push_service : "Отправка Push-уведомлений о событиях"
+
+developer --> vcs : "PUSH Коммитов"
+vcs --> cicd : "Вызов CI/CD для PROD окружения"
+vcs --> cicdtest : "Вызов CI/CD для dev окружения"
+cicd --> buildstage : "Обработка в CI/CD pipeline"
+cicdtest --> buildstagetest : "Обработка в CI/CD pipeline"
+buildstage --> containeregistry : "Сборка образа Docker и PUSH"
+buildstagetest --> containeregistry : "Сборка образа Docker и PUSH"
+containeregistry <-- testingstage : "PULL образа Docker"
+containeregistry <-- testingstagetest : "PULL образа Docker"
+buildstage --> testingstage : "PASS"
+buildstagetest --> testingstagetest : "PASS"
+testingstage --> docker : "Запрос на обновление через PULL [SSH] (Тэг main)"
+testingstagetest --> docker : "Запрос на обновление через PULL [SSH] (Тэг dev)"
+docker --> containeregistry : "PULL образа Docker"
+docker --> containers : "Обновление и развёртка контейнеров и их копий"
+monitoring_service --> containers : "Проверка состояния"
+backup_service --> containers : "Создание бэкапов и восстановление из бэкапов"
+
+tech_support --> containers : "Решение технических проблем"
+admin --> containers : "Управление приложением"
+
+@enduml
