@@ -5,7 +5,7 @@
 
 title "C4. Инфроструктура"
 
-package "Яндекс.Облако" as cloud {
+package "AWS Cloud" as cloud {
     package "Kubernetes Cluster" as k8sCluster {
         Container(nginx, "Nginx", "Nginx", "Обратный прокси и балансировщик нагрузки")
 
@@ -42,13 +42,13 @@ package "Яндекс.Облако" as cloud {
         Container(eventBus, "Event Bus", "RabbitMQ", "Асинхронное взаимодействие между сервисами")
     }
 
-    package "Яндекс Cache Server" as cacheServer {
+    package "AWS Cache Server" as cacheServer {
         Container(redisCacheStat, "Redis Cache Stat", "Redis", "Кэширование запросов для ускорения доступа к данным о игроках, командах и матчах")
         Container(redisCacheForecast, "Redis Cache Forecast", "Redis", "Кэширование запросов для ускорения доступа к данным о прогнозах")
         Container(redisCacheReview, "Redis Cache Review", "Redis", "Кэширование запросов для ускорения доступа к данным об обзорах")
     }
 
-    package "Яндекс Data Center" as dataCenter {
+    package "AWS Data Center" as dataCenter {
         package "User DB Server" as userDBServer {
             Container(userMasterDB, "Master", "PostgreSQL", "Основная база данных пользователя")
             Container(userReplicaDB, "Replica", "PostgreSQL", "Реплика базы данных пользователя")
@@ -69,11 +69,12 @@ package "Яндекс.Облако" as cloud {
             Container(reviewReplicaDB, "Replica", "PostgreSQL", "Реплика базы данных обзоров")
         }
     }
+
+    package "AWS Object Server" as objectServer {
+        Container(mediaContentStorage, "Media Content Storage", "Dropbox", "Хранение изобравжений и видео")
+    }
 }
 
-package "Object Server" as objectServer {
-    Container(mediaContentStorage, "Media Content Storage", "Dropbox", "Хранение изобравжений и видео")
-}
 
 System_Ext(notificationSystem, "Система уведомлений", "Информирование пользователей о начале матча, результатах матчей и событиях")
 System_Ext(videoSystem, "Система управления видеофрагментами", "Хранение, организация и обработка видеофайлов.")
@@ -86,7 +87,7 @@ Rel(nginx, reviewPod, "Проксирование запросов", "HTTP")
 Rel(nginx, mediaContentPod, "Проксирование запросов", "HTTP")
 Rel(nginx, notificationPod, "Проксирование запросов", "HTTP")
 
-Rel(k8sCluster, rabbitCluster, "Публикация событий о статистике, прогнозах и обзорах", "Kafka Producer API")
+Rel(k8sCluster, rabbitCluster, "Публикация событий о статистике, прогнозах и обзорах", "AMQP")
 
 Rel(notificationService, notificationSystem, "Отправка уведомлений", "HTTPS/REST")
 Rel(mediaContentService, videoSystem, "Хранение и предоставление доступа к видеофрагментам матчей", "HTTP/REST")
