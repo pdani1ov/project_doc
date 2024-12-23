@@ -1,7 +1,7 @@
 @startuml Maintanence2
 !theme vibrant
 
-package "Яндекс.Облако Kubernetes" as k8s {
+package "AWS Kubernetes" as k8s {
   [Docker] as docker << (C, #FFAAAA) >>
   [Containers] as containers << (C, #FFAAAA) >>
 }
@@ -9,7 +9,7 @@ package "Яндекс.Облако Kubernetes" as k8s {
 package "Система спортивной статистики - обслуживание" as maintenance {
     actor "Администратор" as admin
     actor "Техническая поддержка" as tech_support
-    package "Яндекс.Облако" as cloud {
+    package "AWS Cloud" as cloud {
       [Система мониторинга Prometheus] as monitoring_service << (C, #FFAAAA) >>
       [Система бэкапов] as backup_service << (C, #FFAAAA) >>
     }
